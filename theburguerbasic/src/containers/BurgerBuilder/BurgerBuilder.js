@@ -16,12 +16,23 @@ class BurgerBuilder extends Component {
     // }
     state = {
         ingredients: {
-            salad: 2,
-            bacon: 2,
-            cheese: 3,
-            meat: 1,
+            salad: 0,
+            bacon: 0,
+            cheese: 0,
+            meat: 0,
         },
-        totalPrice: 4
+        totalPrice: 4,
+        purchasable: false
+    }
+
+    updatePurchaseState(ingredients) {
+        const sum = Object.keys(ingredients).map(ingKey => {
+            return ingredients[ingKey];
+        }).reduce((sum, emptyElement) => {
+            return sum + emptyElement;
+        }, 0);
+
+        this.setState({ purchasable: sum > 0 });
     }
 
     addIngredientHandler = (type) => {
@@ -37,11 +48,16 @@ class BurgerBuilder extends Component {
         const newPrice = oldPrice + priceAddition;
 
         this.setState({ totalPrice: newPrice, ingredients: updateIngredients });
-
+        this.updatePurchaseState(updateIngredients);
     }
 
     removeIngredientHandler = (type) => {
         const oldCount = this.state.ingredients[type];
+
+        if (oldCount <= 0) {
+            return;
+        }
+
         const updateCount = oldCount - 1;
         const updateIngredients = {
             ...this.state.ingredients
@@ -53,15 +69,30 @@ class BurgerBuilder extends Component {
         const newPrice = oldPrice - priceReduction;
 
         this.setState({ totalPrice: newPrice, ingredients: updateIngredients });
+        this.updatePurchaseState(updateIngredients);
     }
 
     render() {
+
+        const disableInfo = {
+            ...this.state.ingredients
+        }
+
+        for (const key in disableInfo) {
+            if (disableInfo.hasOwnProperty(key)) {
+                disableInfo[key] = disableInfo[key] <= 0;
+            }
+        }
+
         return (
             <Aux>
                 <Burger ingredients={this.state.ingredients} />
                 <BuildControls
                     ingredientAdded={this.addIngredientHandler}
                     ingredientSubtracted={this.removeIngredientHandler}
+                    disabled={disableInfo}
+                    price={this.state.totalPrice}
+                    purchasable={this.state.purchasable}
                 />
             </Aux>
         );

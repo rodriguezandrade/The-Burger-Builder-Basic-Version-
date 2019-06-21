@@ -41,7 +41,6 @@ class BurgerIngredient extends Component {
 }
 
 BurgerIngredient.propTypes = {
-    // eslint-disable-next-line no-undef
     type: PropTypes.string.isRequired
 }
 
